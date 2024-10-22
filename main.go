@@ -1,0 +1,116 @@
+package main
+
+import (
+	"net/http"
+	"runtime"
+	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/micmonay/keybd_event"
+)
+
+func main() {
+	kb, err := keybd_event.NewKeyBonding()
+	if err != nil {
+		panic(err)
+	}
+
+	// For linux, it is very important to wait 2 seconds
+	if runtime.GOOS == "linux" {
+		time.Sleep(2 * time.Second)
+	}
+
+	// Select keys to be pressed
+	kb.SetKeys(keybd_event.VK_MEDIA_PLAY_PAUSE)
+
+	// Press the selected keys
+	play := func() error {
+		kb.SetKeys(keybd_event.VK_MEDIA_PLAY_PAUSE)
+		err = kb.Launching()
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	space := func() error {
+		kb.SetKeys(keybd_event.VK_SPACE)
+		err = kb.Launching()
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	alttab := func() error {
+		kb.HasALT(true)
+		kb.SetKeys(keybd_event.VK_TAB)
+		err = kb.Launching()
+		kb.HasALT(false)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	left := func() error {
+		kb.SetKeys(keybd_event.VK_LEFT)
+		err = kb.Launching()
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	right := func() error {
+		kb.SetKeys(keybd_event.VK_RIGHT)
+		err = kb.Launching()
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	up := func() error {
+		kb.SetKeys(keybd_event.VK_UP)
+		err = kb.Launching()
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	down := func() error {
+		kb.SetKeys(keybd_event.VK_DOWN)
+		err = kb.Launching()
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	router := gin.Default()
+	api := router.Group("/")
+	{
+		api.GET("/plpa", func(c *gin.Context) {
+			err := play()
+			if err != nil {
+				c.JSON(200, gin.H{"status": "error", "message": err})
+				return
+			}
+			c.JSON(200, gin.H{"status": "success", "message": "play/pause"})
+		})
+		api.GET("/space", func(c *gin.Context) {
+			err := space()
+			if err != nil {
+				c.JSON(200, gin.H{"status": "error", "message": err})
+				return
+			}
+			c.JSON(200, gin.H{"status": "success", "message": "space"})
+		})
+		api.GET("/alttab", func(c *gin.Context) {
+			err := alttab()
+			if err != nil {
+				c.JSON(200, gin.H{"status": "error", "message": err})
+				return
+			}
+			c.JSON(200, gin.H{"status": "success", "message": "alttab"})
+		})
+	}
+	router.NoRoute(func(ctx *gin.Context) { ctx.JSON(http.StatusNotFound, gin.H{}) })
+	// Start listening and serving requests
+	router.Run(":9145")
+}
