@@ -1,13 +1,29 @@
 package main
 
 import (
+	"log"
+	"net"
 	"net/http"
 	"runtime"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/micmonay/keybd_event"
+	"github.com/yeqown/go-qrcode/v2"
+	"github.com/yeqown/go-qrcode/writer/standard"
 )
+
+func GetOutboundIP() net.IP {
+	conn, err := net.Dial("udp", "8.8.8.8:80")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer conn.Close()
+
+	localAddr := conn.LocalAddr().(*net.UDPAddr)
+
+	return localAddr.IP
+}
 
 func main() {
 	kb, err := keybd_event.NewKeyBonding()
@@ -82,9 +98,31 @@ func main() {
 		}
 		return nil
 	}
+
+	qrc, err := qrcode.New("http://" + GetOutboundIP().String() + ":9145")
+	if err != nil {
+		log.Printf("could not generate QRCode: %v", err)
+		return
+	}
+
+	w, err := standard.New("qr.png")
+	if err != nil {
+		log.Printf("standard.New failed: %v", err)
+		return
+	}
+
+	// save file
+	if err = qrc.Save(w); err != nil {
+		log.Printf("could not save image: %v", err)
+	}
+
 	router := gin.Default()
+	router.LoadHTMLFiles("index.html")
 	api := router.Group("/")
 	{
+		api.GET("/", func(c *gin.Context) {
+			c.HTML(http.StatusOK, "index.html", gin.H{})
+		})
 		api.GET("/plpa", func(c *gin.Context) {
 			err := play()
 			if err != nil {
@@ -145,4 +183,5 @@ func main() {
 	router.NoRoute(func(ctx *gin.Context) { ctx.JSON(http.StatusNotFound, gin.H{}) })
 	// Start listening and serving requests
 	router.Run(":9145")
+
 }

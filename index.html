@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control Panel</title>
+    <style>
+        /* Dark mode styles */
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        h1 {
+            margin-bottom: 40px;
+            font-size: 24px;
+        }
+
+        .button {
+            background-color: #1f1f1f;
+            color: #fff;
+            padding: 15px 30px;
+            margin: 10px;
+            border: 2px solid #333;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            width: 100%;
+            max-width: 200px;
+        }
+
+        .button:hover {
+            background-color: #333;
+            transform: scale(1.05);
+        }
+
+        .button:active {
+            background-color: #555;
+        }
+
+        /* Flexbox for buttons layout */
+        .button-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        /* Mobile styles */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 20px;
+            }
+
+            .button {
+                font-size: 16px;
+                padding: 12px 20px;
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .button-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .button {
+                font-size: 14px;
+                padding: 10px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Control Panel</h1>
+    <div class="button-container">
+        <button class="button" id="playButton">Play</button>
+        <button class="button" id="altTabButton">ALT+TAB</button>
+        <button class="button" id="upButton">Up</button>
+        <button class="button" id="downButton">Down</button>
+        <button class="button" id="leftButton">Left</button>
+        <button class="button" id="rightButton">Right</button>
+        <button class="button" id="spaceButton">Space</button>
+    </div>
+
+    <script>
+        function sendRequest(endpoint) {
+            fetch(`http://localhost:9145/${endpoint}`)
+                .then(response => console.log(`Request sent to ${endpoint}`))
+                .catch(error => console.error('Error:', error));
+        }
+
+        document.getElementById('playButton').addEventListener('click', () => sendRequest('plpa'));
+        document.getElementById('altTabButton').addEventListener('click', () => sendRequest('alttab'));
+        document.getElementById('upButton').addEventListener('click', () => sendRequest('up'));
+        document.getElementById('downButton').addEventListener('click', () => sendRequest('down'));
+        document.getElementById('leftButton').addEventListener('click', () => sendRequest('left'));
+        document.getElementById('rightButton').addEventListener('click', () => sendRequest('right'));
+        document.getElementById('spaceButton').addEventListener('click', () => sendRequest('space'));
+    </script>
+</body>
+</html>
