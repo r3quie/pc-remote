@@ -1,10 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net"
 	"net/http"
+	"os"
+	"os/exec"
 	"runtime"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -23,6 +27,45 @@ func GetOutboundIP() net.IP {
 	localAddr := conn.LocalAddr().(*net.UDPAddr)
 
 	return localAddr.IP
+}
+
+func openBrowser(url string) error {
+	var cmd string
+	var args []string
+
+	switch runtime.GOOS {
+	case "linux":
+		cmd = "xdg-open"
+	case "darwin":
+		cmd = "open"
+	case "windows":
+		cmd = "rundll32"
+		args = append(args, "url.dll,FileProtocolHandler")
+	default:
+		return fmt.Errorf("unsupported platform")
+	}
+
+	args = append(args, url)
+	return exec.Command(cmd, args...).Start()
+}
+
+func replaceInFile(filePath string, old string, new string) error {
+	// Read the file
+	content, err := os.ReadFile(filePath)
+	if err != nil {
+		return err
+	}
+
+	// Replace occurrences of "old" with "new"
+	modifiedContent := strings.ReplaceAll(string(content), old, new)
+
+	// Write the modified content back to the file
+	err = os.WriteFile(filePath, []byte(modifiedContent), 0644)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func main() {
@@ -179,9 +222,15 @@ func main() {
 			}
 			c.JSON(200, gin.H{"status": "success", "message": "down"})
 		})
+		api.GET("/qr", func(c *gin.Context) {
+			c.File("qr.png")
+		})
 	}
 	router.NoRoute(func(ctx *gin.Context) { ctx.JSON(http.StatusNotFound, gin.H{}) })
 	// Start listening and serving requests
-	router.Run(":9145")
 
+	replaceInFile("index.html", "http://localhost:9145", "http://"+GetOutboundIP().String()+":9145")
+	openBrowser("http://" + GetOutboundIP().String() + ":9145/qr")
+
+	router.Run(":9145")
 }
