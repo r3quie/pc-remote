@@ -109,6 +109,38 @@ func main() {
 			}
 			c.JSON(200, gin.H{"status": "success", "message": "alttab"})
 		})
+		api.GET("/left", func(c *gin.Context) {
+			err := left()
+			if err != nil {
+				c.JSON(200, gin.H{"status": "error", "message": err})
+				return
+			}
+			c.JSON(200, gin.H{"status": "success", "message": "left"})
+		})
+		api.GET("/right", func(c *gin.Context) {
+			err := right()
+			if err != nil {
+				c.JSON(200, gin.H{"status": "error", "message": err})
+				return
+			}
+			c.JSON(200, gin.H{"status": "success", "message": "right"})
+		})
+		api.GET("/up", func(c *gin.Context) {
+			err := up()
+			if err != nil {
+				c.JSON(200, gin.H{"status": "error", "message": err})
+				return
+			}
+			c.JSON(200, gin.H{"status": "success", "message": "up"})
+		})
+		api.GET("/down", func(c *gin.Context) {
+			err := down()
+			if err != nil {
+				c.JSON(200, gin.H{"status": "error", "message": err})
+				return
+			}
+			c.JSON(200, gin.H{"status": "success", "message": "down"})
+		})
 	}
 	router.NoRoute(func(ctx *gin.Context) { ctx.JSON(http.StatusNotFound, gin.H{}) })
 	// Start listening and serving requests
