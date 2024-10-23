@@ -160,6 +160,7 @@ func main() {
 	}
 
 	router := gin.Default()
+	replaceInFile("static.html", "http://localhost:9145", "http://"+GetOutboundIP().String()+":9145")
 	router.LoadHTMLFiles("index.html")
 	api := router.Group("/")
 	{
