@@ -60,7 +60,7 @@ func replaceInFile(filePath string, old string, new string) error {
 	modifiedContent := strings.ReplaceAll(string(content), old, new)
 
 	// Write the modified content back to the file
-	err = os.WriteFile(filePath, []byte(modifiedContent), 0644)
+	err = os.WriteFile("index.html", []byte(modifiedContent), 0644)
 	if err != nil {
 		return err
 	}
@@ -229,7 +229,7 @@ func main() {
 	router.NoRoute(func(ctx *gin.Context) { ctx.JSON(http.StatusNotFound, gin.H{}) })
 	// Start listening and serving requests
 
-	replaceInFile("index.html", "http://localhost:9145", "http://"+GetOutboundIP().String()+":9145")
+	replaceInFile("static.html", "http://localhost:9145", "http://"+GetOutboundIP().String()+":9145")
 	openBrowser("http://" + GetOutboundIP().String() + ":9145/qr")
 
 	router.Run(":9145")
